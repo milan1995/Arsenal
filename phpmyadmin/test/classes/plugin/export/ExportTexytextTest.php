@@ -364,7 +364,6 @@ class ExportTexytextTest extends PMATestCase
         $this->object = $this->getMockBuilder('PMA\libraries\plugins\export\ExportTexytext')
             ->setMethods(array('formatOneColumnDefinition'))
             ->getMock();
-        $GLOBALS['controllink'] = null;
 
         // case 1
 
@@ -388,29 +387,38 @@ class ExportTexytextTest extends PMATestCase
             ->with('db', 'table')
             ->will($this->returnValue($keys));
 
-        $dbi->expects($this->exactly(2))
+        $dbi->expects($this->at(2))
             ->method('fetchResult')
-            ->willReturnOnConsecutiveCalls(
-                array(
-                    'fname' => array(
-                        'foreign_table' => '<ftable',
-                        'foreign_field' => 'ffield>'
-                    )
-                ),
-                array(
-                    'fname' => array(
-                        'values' => 'test-',
-                        'transformation' => 'testfoo',
-                        'mimetype' => 'test<'
+            ->will(
+                $this->returnValue(
+                    array(
+                        'fname' => array(
+                            'foreign_table' => '<ftable',
+                            'foreign_field' => 'ffield>'
+                        )
                     )
                 )
             );
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(3))
             ->method('fetchValue')
             ->will(
                 $this->returnValue(
                     'SELECT a FROM b'
+                )
+            );
+
+        $dbi->expects($this->at(5))
+            ->method('fetchResult')
+            ->will(
+                $this->returnValue(
+                    array(
+                        'fname' => array(
+                            'values' => 'test-',
+                            'transformation' => 'testfoo',
+                            'mimetype' => 'test<'
+                        )
+                    )
                 )
             );
 

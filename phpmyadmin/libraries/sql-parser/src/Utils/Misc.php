@@ -17,7 +17,8 @@ use SqlParser\Statements\SelectStatement;
  * @category   Misc
  * @package    SqlParser
  * @subpackage Utils
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Dan Ungureanu <udan1107@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class Misc
 {

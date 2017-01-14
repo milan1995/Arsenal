@@ -552,15 +552,12 @@ $(function () {
         if ($('#pma_navigation_tree_content').length &&
             typeof storage.navTreePaths === 'undefined'
         ) {
-            PMA_reloadNavigation();
+            navTreeStateUpdate();
         } else if (PMA_commonParams.get('server') === storage.server &&
             PMA_commonParams.get('token') === storage.token
         ) {
             // Reload the tree to the state before page refresh
             PMA_reloadNavigation(null, JSON.parse(storage.navTreePaths));
-        } else {
-            // If the user is different
-            navTreeStateUpdate();
         }
     }
 });

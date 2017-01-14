@@ -696,7 +696,7 @@ $GLOBALS['dummy_queries'] = array(
     array(
         'query'  => "SELECT `PARTITION_METHOD` "
             . "FROM `information_schema`.`PARTITIONS` "
-            . "WHERE `TABLE_SCHEMA` = 'db' AND `TABLE_NAME` = 'table' LIMIT 1",
+            . "WHERE `TABLE_SCHEMA` = 'db' AND `TABLE_NAME` = 'table'",
         'result' => array(),
     ),
     array(
@@ -1255,18 +1255,5 @@ class DBIDummy implements DBIExtension
     public function fieldFlags($result, $i)
     {
         return '';
-    }
-
-    /**
-     * returns properly escaped string for use in MySQL queries
-     *
-     * @param mixed  $link database link
-     * @param string $str  string to be escaped
-     *
-     * @return string a MySQL escaped string
-     */
-    public function escapeString($link, $str)
-    {
-        return $str;
     }
 }

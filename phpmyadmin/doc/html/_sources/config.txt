@@ -41,9 +41,10 @@ Basic settings
     :type: string
     :default: ``''``
 
-    .. versionchanged:: 4.6.5
+    .. deprecated:: 4.6.0
         
-        This setting was not available in phpMyAdmin 4.6.0 - 4.6.4.
+        This setting is no longer available since phpMyAdmin 4.6.0. Please
+        adjust your webserver instead.
 
     Sets here the complete :term:`URL` (with full path) to your phpMyAdmin
     installation's directory. E.g.
@@ -62,7 +63,7 @@ Basic settings
     fails to detect your path, please post a bug report on our bug tracker so
     we can improve the code.
 
-    .. seealso:: :ref:`faq1_40`, :ref:`faq2_5`, :ref:`faq4_7`, :ref:`faq5_16`
+    .. seealso:: :ref:`faq1_40`
 
 .. config:option:: $cfg['PmaNoRelation_DisableWarning']
 
@@ -1546,30 +1547,6 @@ Cookie authentication options
     matching the :term:`IP` or the hostname of the MySQL server
     to the given regular expression. The regular expression must be enclosed
     with a delimiter character.
-
-    It is recommended to include start and end symbols in the regullar
-    expression, so that you can avoid partial matches on the string.
-
-    **Examples:**
-
-    .. code-block:: php
-
-        // Allow connection to three listed servers:
-        $cfg['ArbitraryServerRegexp'] = '/^(server|another|yetdifferent)$/'; 
-
-        // Allow connection to range of IP addresses:
-        $cfg['ArbitraryServerRegexp'] = '@^192\.168\.0\.[0-9]{1,}$@';
-
-        // Allow connection to server name ending with -mysql:
-        $cfg['ArbitraryServerRegexp'] = '@^[^:]\-mysql$@';
-
-    .. note::
-
-        The whole server name is matched, it can include port as well. Due to
-        way MySQL is permissive in connection parameters, it is possible to use
-        connection strings as ```server:3306-mysql```. This can be used to
-        bypass regullar expression by the suffix, while connecting to another
-        server.
 
 .. config:option:: $cfg['CaptchaLoginPublicKey']
 

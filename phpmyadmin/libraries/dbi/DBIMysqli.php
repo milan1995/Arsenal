@@ -64,6 +64,7 @@ class DBIMysqli implements DBIExtension
      * @param string $host          mysql hostname
      * @param string $user          mysql user name
      * @param string $password      mysql user password
+     * @param string $dbname        database name
      * @param int    $server_port   server port
      * @param string $server_socket server socket
      * @param int    $client_flags  client flags of connection
@@ -72,7 +73,7 @@ class DBIMysqli implements DBIExtension
      * @return bool
      */
     private function _realConnect(
-        $link, $host, $user, $password, $server_port,
+        $link, $host, $user, $password, $dbname, $server_port,
         $server_socket, $client_flags = null, $persistent = false
     ) {
         global $cfg;
@@ -88,7 +89,7 @@ class DBIMysqli implements DBIExtension
                 $host,
                 $user,
                 $password,
-                '',
+                $dbname,
                 $server_port,
                 $server_socket
             );
@@ -98,7 +99,7 @@ class DBIMysqli implements DBIExtension
                 $host,
                 $user,
                 $password,
-                '',
+                $dbname,
                 $server_port,
                 $server_socket,
                 $client_flags
@@ -184,6 +185,7 @@ class DBIMysqli implements DBIExtension
                 $cfg['Server']['host'],
                 $user,
                 $password,
+                false,
                 $server_port,
                 $server_socket,
                 $client_flags
@@ -199,6 +201,7 @@ class DBIMysqli implements DBIExtension
                     $cfg['Server']['host'],
                     $user,
                     '',
+                    false,
                     $server_port,
                     $server_socket,
                     $client_flags
@@ -210,6 +213,7 @@ class DBIMysqli implements DBIExtension
                 $server['host'],
                 $user,
                 $password,
+                false,
                 $server_port,
                 $server_socket
             );
@@ -614,18 +618,5 @@ class DBIMysqli implements DBIExtension
             $flags[] = 'binary';
         }
         return implode(' ', $flags);
-    }
-
-    /**
-     * returns properly escaped string for use in MySQL queries
-     *
-     * @param mixed  $link database link
-     * @param string $str  string to be escaped
-     *
-     * @return string a MySQL escaped string
-     */
-    public function escapeString($link, $str)
-    {
-        return mysqli_real_escape_string($link, $str);
     }
 }

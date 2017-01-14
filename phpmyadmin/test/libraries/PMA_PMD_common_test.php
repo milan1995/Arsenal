@@ -54,10 +54,8 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
         $dbi = $this->getMockBuilder('PMA\libraries\DatabaseInterface')
             ->disableOriginalConstructor()
             ->getMock();
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
             ->with(
                 "
@@ -91,10 +89,8 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
         $dbi = $this->getMockBuilder('PMA\libraries\DatabaseInterface')
             ->disableOriginalConstructor()
             ->getMock();
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
             ->with(
                 "SELECT `page_descr` FROM `pmadb`.`pdf_pages`"
@@ -125,15 +121,26 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->exactly(2))
+        $dbi->expects($this->at(0))
             ->method('query')
-            ->willReturnOnConsecutiveCalls(
-                true,
-                true
-            );
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
+            ->with(
+                "DELETE FROM `pmadb`.`table_coords`"
+                . " WHERE `pdf_page_number` = " . $pg,
+                2,
+                PMA\libraries\DatabaseInterface::QUERY_STORE,
+                false
+            )
+            ->will($this->returnValue(true));
 
+        $dbi->expects($this->at(1))
+            ->method('query')
+            ->with(
+                "DELETE FROM `pmadb`.`pdf_pages` WHERE `page_nr` = " . $pg,
+                2,
+                PMA\libraries\DatabaseInterface::QUERY_STORE,
+                false
+            )
+            ->will($this->returnValue(true));
         $GLOBALS['dbi'] = $dbi;
 
         $result = PMA_deletePage($pg);
@@ -155,7 +162,7 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
             ->with(
                 "SELECT `page_nr` FROM `pmadb`.`pdf_pages`"
@@ -167,9 +174,6 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
                 PMA\libraries\DatabaseInterface::QUERY_STORE
             )
             ->will($this->returnValue(array($default_pg)));
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
-
         $GLOBALS['dbi'] = $dbi;
 
         $result = PMA_getDefaultPage($db);
@@ -189,7 +193,7 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
             ->with(
                 "SELECT `page_nr` FROM `pmadb`.`pdf_pages`"
@@ -201,9 +205,6 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
                 PMA\libraries\DatabaseInterface::QUERY_STORE
             )
             ->will($this->returnValue(array()));
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
-
         $GLOBALS['dbi'] = $dbi;
 
         $result = PMA_getDefaultPage($db);
@@ -224,7 +225,7 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
             ->with(
                 "SELECT `page_nr` FROM `pmadb`.`pdf_pages`"
@@ -236,9 +237,6 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
                 PMA\libraries\DatabaseInterface::QUERY_STORE
             )
             ->will($this->returnValue(array($default_pg)));
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
-
         $GLOBALS['dbi'] = $dbi;
 
         $result = PMA_getLoadingPage($db);
@@ -259,15 +257,30 @@ class PMA_PMD_CommonTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->exactly(2))
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
-            ->willReturnOnConsecutiveCalls(
-                array(),
-                array($first_pg)
-            );
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
+            ->with(
+                "SELECT `page_nr` FROM `pmadb`.`pdf_pages`"
+                . " WHERE `db_name` = '" . $db . "'"
+                . " AND `page_descr` = '" . $db . "'",
+                null,
+                null,
+                2,
+                PMA\libraries\DatabaseInterface::QUERY_STORE
+            )
+            ->will($this->returnValue(array()));
 
+        $dbi->expects($this->at(1))
+            ->method('fetchResult')
+            ->with(
+                "SELECT MIN(`page_nr`) FROM `pmadb`.`pdf_pages`"
+                . " WHERE `db_name` = '" . $db . "'",
+                null,
+                null,
+                2,
+                PMA\libraries\DatabaseInterface::QUERY_STORE
+            )
+            ->will($this->returnValue(array($first_pg)));
         $GLOBALS['dbi'] = $dbi;
 
         $result = PMA_getLoadingPage($db);

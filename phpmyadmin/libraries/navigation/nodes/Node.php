@@ -434,7 +434,7 @@ class Node
             $query .= "SELECT DB_first_level ";
             $query .= "FROM ( ";
             $query .= "SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, ";
-            $query .= "'" . $GLOBALS['dbi']->escapeString($dbSeparator) . "', 1) ";
+            $query .= "'" . Util::sqlAddSlashes($dbSeparator) . "', 1) ";
             $query .= "DB_first_level ";
             $query .= "FROM INFORMATION_SCHEMA.SCHEMATA ";
             $query .= $this->_getWhereClause('SCHEMA_NAME', $searchClause);
@@ -444,9 +444,9 @@ class Node
             $query .= ") t2 ";
             $query .= $this->_getWhereClause('SCHEMA_NAME', $searchClause);
             $query .= "AND 1 = LOCATE(CONCAT(DB_first_level, ";
-            $query .= "'" . $GLOBALS['dbi']->escapeString($dbSeparator) . "'), ";
+            $query .= "'" . Util::sqlAddSlashes($dbSeparator) . "'), ";
             $query .= "CONCAT(SCHEMA_NAME, ";
-            $query .= "'" . $GLOBALS['dbi']->escapeString($dbSeparator) . "')) ";
+            $query .= "'" . Util::sqlAddSlashes($dbSeparator) . "')) ";
             $query .= "ORDER BY SCHEMA_NAME ASC";
             $retval = $GLOBALS['dbi']->fetchResult($query);
 
@@ -480,7 +480,7 @@ class Node
             $subClauses = array();
             foreach ($prefixes as $prefix) {
                 $subClauses[] = " LOCATE('"
-                    . $GLOBALS['dbi']->escapeString($prefix) . $dbSeparator
+                    . Util::sqlAddSlashes($prefix) . $dbSeparator
                     . "', "
                     . "CONCAT(`Database`, '" . $dbSeparator . "')) = 1 ";
             }
@@ -685,7 +685,7 @@ class Node
     {
         if (!empty($searchClause)) {
             $databases = array(
-                "%" . $GLOBALS['dbi']->escapeString($searchClause, true) . "%",
+                "%" . Util::sqlAddSlashes($searchClause, true) . "%",
             );
         } elseif (!empty($GLOBALS['cfg']['Server']['only_db'])) {
             $databases = $GLOBALS['cfg']['Server']['only_db'];
@@ -712,7 +712,7 @@ class Node
         if (!empty($searchClause)) {
             $whereClause .= "AND " . Util::backquote($columnName)
                 . " LIKE '%";
-            $whereClause .= $GLOBALS['dbi']->escapeString(
+            $whereClause .= Util::sqlAddSlashes(
                 $searchClause,
                 true
             );
@@ -721,9 +721,7 @@ class Node
 
         if (!empty($GLOBALS['cfg']['Server']['hide_db'])) {
             $whereClause .= "AND " . Util::backquote($columnName)
-                . " NOT REGEXP '"
-                . $GLOBALS['dbi']->escapeString($GLOBALS['cfg']['Server']['hide_db'])
-                . "' ";
+                . " NOT REGEXP '" . $GLOBALS['cfg']['Server']['hide_db'] . "' ";
         }
 
         if (!empty($GLOBALS['cfg']['Server']['only_db'])) {
@@ -737,7 +735,7 @@ class Node
             foreach ($GLOBALS['cfg']['Server']['only_db'] as $each_only_db) {
                 $subClauses[] = " " . Util::backquote($columnName)
                     . " LIKE '"
-                    . $GLOBALS['dbi']->escapeString($each_only_db) . "' ";
+                    . $each_only_db . "' ";
             }
             $whereClause .= implode("OR", $subClauses) . ") ";
         }
@@ -817,7 +815,7 @@ class Node
                 );
             $sqlQuery = "SELECT `db_name`, COUNT(*) AS `count` FROM " . $navTable
                 . " WHERE `username`='"
-                . $GLOBALS['dbi']->escapeString(
+                . Util::sqlAddSlashes(
                     $GLOBALS['cfg']['Server']['user']
                 ) . "'"
                 . " GROUP BY `db_name`";

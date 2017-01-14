@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Parses a list of expressions delimited by a comma.
+ * Parses a a list of expressions delimited by a comma.
  *
  * @package    SqlParser
  * @subpackage Components
@@ -14,12 +14,13 @@ use SqlParser\Token;
 use SqlParser\TokensList;
 
 /**
- * Parses a list of expressions delimited by a comma.
+ * Parses a a list of expressions delimited by a comma.
  *
  * @category   Keywords
  * @package    SqlParser
  * @subpackage Components
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Dan Ungureanu <udan1107@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class ExpressionArray extends Component
 {
@@ -72,21 +73,13 @@ class ExpressionArray extends Component
                 && ((~$token->flags & Token::FLAG_KEYWORD_FUNCTION))
                 && ($token->value !== 'DUAL')
                 && ($token->value !== 'NULL')
-                && ($token->value !== 'CASE')
             ) {
                 // No keyword is expected.
                 break;
             }
 
             if ($state === 0) {
-                if ($token->type === Token::TYPE_KEYWORD
-                    && $token->value === 'CASE'
-                ) {
-                    $expr = CaseExpression::parse($parser, $list, $options);
-                } else {
-                    $expr = Expression::parse($parser, $list, $options);
-                }
-
+                $expr = Expression::parse($parser, $list, $options);
                 if ($expr === null) {
                     break;
                 }

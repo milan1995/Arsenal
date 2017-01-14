@@ -15,7 +15,8 @@ namespace SqlParser;
  *
  * @category Contexts
  * @package  SqlParser
- * @license  https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author   Dan Ungureanu <udan1107@gmail.com>
+ * @license  http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 abstract class Context
 {
@@ -28,16 +29,6 @@ abstract class Context
      * @var int
      */
     const KEYWORD_MAX_LENGTH = 30;
-
-    /**
-     * The maximum length of a label.
-     *
-     * @see static::$TOKEN_LABEL
-     * Ref: https://dev.mysql.com/doc/refman/5.7/en/statement-labels.html
-     *
-     * @var int
-     */
-    const LABEL_MAX_LENGTH = 16;
 
     /**
      * The maximum length of an operator.

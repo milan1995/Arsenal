@@ -17,7 +17,8 @@ use SqlParser\Lexer;
  * @category   Exceptions
  * @package    SqlParser
  * @subpackage Utils
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Michal Čihař <michal@cihar.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class CLI
 {
@@ -36,20 +37,12 @@ class CLI
         echo "Usage: highlight-query --query SQL [--format html|cli|text]\n";
     }
 
-    public function getopt($opt, $long)
-    {
-        return getopt($opt, $long);
-    }
-
     public function parseHighlight()
     {
         $longopts = array('help', 'query:', 'format:');
-        $params = $this->getopt(
+        $params = getopt(
             'hq:f:', $longopts
         );
-        if ($params === false) {
-            return false;
-        }
         $this->mergeLongOpts($params, $longopts);
         if (! isset($params['f'])) {
             $params['f'] = 'cli';
@@ -91,7 +84,7 @@ class CLI
     public function parseLint()
     {
         $longopts = array('help', 'query:');
-        $params = $this->getopt(
+        $params = getopt(
             'hq:', $longopts
         );
         $this->mergeLongOpts($params, $longopts);

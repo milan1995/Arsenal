@@ -33,7 +33,6 @@ CodeMirror.sqlLint = function(text, updateLinting, options, cm) {
             token: PMA_commonParams.get('token'),
             server: PMA_commonParams.get('server'),
             options: options.lintOptions,
-            no_history: true,
         },
         success: handleResponse
     });

@@ -37,23 +37,6 @@ function PMA_urlencode(str)
 }
 
 /**
- * Saves SQL query in local storage or cooie
- *
- * @param string SQL query
- * @return void
- */
-function PMA_autosaveSQL(query)
-{
-    if (query) {
-        if (isStorageSupported('localStorage')) {
-            window.localStorage.auto_saved_sql = query;
-        } else {
-            $.cookie('auto_saved_sql', query);
-        }
-    }
-}
-
-/**
  * Get the field name for the current field.  Required to construct the query
  * for grid editing
  *
@@ -152,11 +135,17 @@ AJAX.registerOnload('sql.js', function () {
     $(function () {
         if (codemirror_editor) {
             codemirror_editor.on('change', function () {
-                PMA_autosaveSQL(codemirror_editor.getValue());
+                var query = codemirror_editor.getValue();
+                if (query) {
+                    $.cookie('auto_saved_sql', query);
+                }
             });
         } else {
             $('#sqlquery').on('input propertychange', function () {
-                PMA_autosaveSQL($('#sqlquery').val());
+                var query = $('#sqlquery').val();
+                if (query) {
+                    $.cookie('auto_saved_sql', query);
+                }
             });
         }
     });

@@ -47,8 +47,7 @@ $foreignData = PMA_getForeignData(
     isset($_REQUEST['foreign_filter'])
     ? $_REQUEST['foreign_filter']
     : '',
-    isset($foreign_limit) ? $foreign_limit : null,
-    true // for getting value in $foreignData['the_total']
+    isset($foreign_limit) ? $foreign_limit : null
 );
 
 // HTML output

@@ -19,7 +19,8 @@ use SqlParser\TokensList;
  * @category   Keywords
  * @package    SqlParser
  * @subpackage Components
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Dan Ungureanu <udan1107@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class Limit extends Component
 {
@@ -126,6 +127,10 @@ class Limit extends Component
      */
     public static function build($component, array $options = array())
     {
-        return $component->offset . ', ' . $component->rowCount;
+        if (empty($component->offset)) {
+            return (string) $component->rowCount;
+        } else {
+            return $component->offset . ', ' . $component->rowCount;
+        }
     }
 }

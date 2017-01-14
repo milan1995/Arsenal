@@ -19,7 +19,8 @@ use SqlParser\TokensList;
  * @category   Components
  * @package    SqlParser
  * @subpackage Components
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Dan Ungureanu <udan1107@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class AlterOperation extends Component
 {
@@ -50,7 +51,6 @@ class AlterOperation extends Component
         'AVG_ROW_LENGTH'                => array(1, 'var'),
         'MAX_ROWS'                      => array(1, 'var'),
         'ROW_FORMAT'                    => array(1, 'var'),
-        'COMMENT'                       => array(1, 'var'),
         'ADD'                           => 1,
         'ALTER'                         => 1,
         'ANALYZE'                       => 1,
@@ -219,17 +219,6 @@ class AlterOperation extends Component
                     } elseif (($token->value === ',') && ($brackets === 0)) {
                         break;
                     }
-                } elseif (!empty(Parser::$STATEMENT_PARSERS[$token->value])) {
-                    // We have reached the end of ALTER operation and suddenly found
-                    // a start to new statement, but have not find a delimiter between them
-
-                    if (! ($token->value == 'SET' && $list->tokens[$list->idx - 1]->value == 'CHARACTER')) {
-                        $parser->error(
-                            __('A new statement was found, but no delimiter between it and the previous one.'),
-                            $token
-                        );
-                        break;
-                    }
                 }
                 $ret->unknown[] = $token;
             }
@@ -243,7 +232,6 @@ class AlterOperation extends Component
         }
 
         --$list->idx;
-
         return $ret;
     }
 

@@ -61,7 +61,7 @@ class PMA_DesignerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(0))
             ->method('tryQuery')
             ->with(
                 "SELECT `page_nr`, `page_descr` FROM `pmadb`.`pdf_pages`"
@@ -72,17 +72,24 @@ class PMA_DesignerTest extends PHPUnit_Framework_TestCase
             )
             ->will($this->returnValue('dummyRS'));
 
-        $dbi->expects($this->exactly(3))
+        $dbi->expects($this->at(1))
             ->method('fetchAssoc')
-            ->willReturnOnConsecutiveCalls(
-                array('page_nr' => '1', 'page_descr' => 'page1'),
-                array('page_nr' => '2', 'page_descr' => 'page2'),
-                false
+            ->with('dummyRS')
+            ->will(
+                $this->returnValue(array('page_nr' => '1', 'page_descr' => 'page1'))
             );
 
-        $dbi->expects($this->any())
-            ->method('escapeString')
-            ->will($this->returnArgument(0));
+        $dbi->expects($this->at(2))
+            ->method('fetchAssoc')
+            ->with('dummyRS')
+            ->will(
+                $this->returnValue(array('page_nr' => '2', 'page_descr' => 'page2'))
+            );
+
+        $dbi->expects($this->at(3))
+            ->method('fetchAssoc')
+            ->with('dummyRS')
+            ->will($this->returnValue(false));
 
         $GLOBALS['dbi'] = $dbi;
     }

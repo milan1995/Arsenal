@@ -38,7 +38,8 @@ if (!defined('USE_UTF_STRINGS')) {
  *
  * @category Lexer
  * @package  SqlParser
- * @license  https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author   Dan Ungureanu <udan1107@gmail.com>
+ * @license  http://opensource.org/licenses/GPL-2.0 GNU Public License
  * @see      Context
  */
 class Lexer
@@ -76,7 +77,7 @@ class Lexer
 
         'parseDelimiter', 'parseWhitespace', 'parseNumber',
         'parseComment', 'parseOperator', 'parseBool', 'parseString',
-        'parseSymbol', 'parseKeyword', 'parseLabel', 'parseUnknown'
+        'parseSymbol', 'parseKeyword', 'parseUnknown'
     );
 
     /**
@@ -435,61 +436,6 @@ class Lexer
                     // If we stopped at `OR`, the parsing would be invalid.
                 }
             }
-        }
-
-        $this->last = $iEnd;
-        return $ret;
-    }
-
-    /**
-     * Parses a label.
-     *
-     * @return Token
-     */
-    public function parseLabel()
-    {
-        $token = '';
-
-        /**
-         * Value to be returned.
-         *
-         * @var Token $ret
-         */
-        $ret = null;
-
-        /**
-         * The value of `$this->last` where `$token` ends in `$this->str`.
-         *
-         * @var int $iEnd
-         */
-        $iEnd = $this->last;
-
-        /**
-         * Whether last parsed character is a whitespace.
-         *
-         * @var bool $lastSpace
-         */
-        $lastSpace = false;
-
-        for ($j = 1; $j < Context::LABEL_MAX_LENGTH && $this->last < $this->len; ++$j, ++$this->last) {
-            // Composed keywords shouldn't have more than one whitespace between
-            // keywords.
-            if (Context::isWhitespace($this->str[$this->last])) {
-                if ($lastSpace) {
-                    --$j; // The size of the keyword didn't increase.
-                    continue;
-                } else {
-                    $lastSpace = true;
-                }
-            } elseif ($this->str[$this->last] === ':') {
-                $token .= $this->str[$this->last];
-                $ret = new Token($token, Token::TYPE_LABEL);
-                $iEnd = $this->last;
-                break;
-            } else {
-                $lastSpace = false;
-            }
-            $token .= $this->str[$this->last];
         }
 
         $this->last = $iEnd;

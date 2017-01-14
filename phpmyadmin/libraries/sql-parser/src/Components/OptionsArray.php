@@ -19,7 +19,8 @@ use SqlParser\TokensList;
  * @category   Components
  * @package    SqlParser
  * @subpackage Components
- * @license    https://www.gnu.org/licenses/gpl-2.0.txt GPL-2.0+
+ * @author     Dan Ungureanu <udan1107@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License
  */
 class OptionsArray extends Component
 {
@@ -182,7 +183,7 @@ class OptionsArray extends Component
                         'value' => '',
                     );
                     $state = 1;
-                } elseif ($lastOption[1] === 'expr'  || $lastOption[1] === 'expr=') {
+                } elseif ($lastOption[1] === 'expr') {
                     // This is a keyword that is followed by an expression.
                     // The expression is used by the specialized parser.
 
@@ -191,11 +192,8 @@ class OptionsArray extends Component
                     $ret->options[$lastOptionId] = array(
                         // @var string The name of the option.
                         'name' => $token->value,
-                        // @var bool Whether it contains an equal sign.
-                        //           This is used by the builder to rebuild it.
-                        'equals' => $lastOption[1] === 'expr=',
                         // @var Expression The parsed expression.
-                        'expr' => '',
+                        'expr' => null,
                     );
                     $state = 1;
                 }
@@ -210,7 +208,7 @@ class OptionsArray extends Component
             // This is outside the `elseif` group above because the change might
             // change this iteration.
             if ($state === 2) {
-                if ($lastOption[1] === 'expr' || $lastOption[1] === 'expr=') {
+                if ($lastOption[1] === 'expr') {
                     $ret->options[$lastOptionId]['expr'] = Expression::parse(
                         $parser,
                         $list,
@@ -244,26 +242,6 @@ class OptionsArray extends Component
             }
         }
 
-        /*
-         * We reached the end of statement without getting a value
-         * for an option for which a value was required
-         */
-        if ($state === 1
-            && $lastOption
-            && ($lastOption[1] == 'expr'
-            || $lastOption[1] == 'var'
-            || $lastOption[1] == 'var='
-            || $lastOption[1] == 'expr=')
-        ) {
-            $parser->error(
-                sprintf(
-                    __('Value/Expression for the option %1$s was expected'),
-                    $ret->options[$lastOptionId]['name']
-                ),
-                $list->tokens[$list->idx - 1]
-            );
-        }
-
         if (empty($options['_UNSORTED'])) {
             ksort($ret->options);
         }
@@ -290,7 +268,7 @@ class OptionsArray extends Component
                 $options[] = $option;
             } else {
                 $options[] = $option['name']
-                    . ((!empty($option['equals']) && $option['equals']) ? '=' : ' ')
+                    . (!empty($option['equals']) ? '=' : ' ')
                     . (!empty($option['expr']) ? $option['expr'] : $option['value']);
             }
         }

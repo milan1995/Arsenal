@@ -123,8 +123,8 @@ class Tracker
         }
 
         $sql_query = " SELECT tracking_active FROM " . self::_getTrackingTable() .
-        " WHERE db_name = '" . $GLOBALS['dbi']->escapeString($dbname) . "' " .
-        " AND table_name = '" . $GLOBALS['dbi']->escapeString($tablename) . "' " .
+        " WHERE db_name = '" . Util::sqlAddSlashes($dbname) . "' " .
+        " AND table_name = '" . Util::sqlAddSlashes($tablename) . "' " .
         " ORDER BY version DESC";
 
         $row = $GLOBALS['dbi']->fetchArray(PMA_queryAsControlUser($sql_query));
@@ -144,9 +144,8 @@ class Tracker
     static public function getLogComment()
     {
         $date = date('Y-m-d H:i:s');
-        $user = preg_replace('/\s+/', ' ', $GLOBALS['cfg']['Server']['user']);
 
-        return "# log " . $date . " " . $user . "\n";
+        return "# log " . $date . " " . $GLOBALS['cfg']['Server']['user'] . "\n";
     }
 
     /**
@@ -243,15 +242,15 @@ class Tracker
         "tracking " .
         ") " .
         "values (
-        '" . $GLOBALS['dbi']->escapeString($dbname) . "',
-        '" . $GLOBALS['dbi']->escapeString($tablename) . "',
-        '" . $GLOBALS['dbi']->escapeString($version) . "',
-        '" . $GLOBALS['dbi']->escapeString($date) . "',
-        '" . $GLOBALS['dbi']->escapeString($date) . "',
-        '" . $GLOBALS['dbi']->escapeString($snapshot) . "',
-        '" . $GLOBALS['dbi']->escapeString($create_sql) . "',
-        '" . $GLOBALS['dbi']->escapeString("\n") . "',
-        '" . $GLOBALS['dbi']->escapeString($tracking_set)
+        '" . Util::sqlAddSlashes($dbname) . "',
+        '" . Util::sqlAddSlashes($tablename) . "',
+        '" . Util::sqlAddSlashes($version) . "',
+        '" . Util::sqlAddSlashes($date) . "',
+        '" . Util::sqlAddSlashes($date) . "',
+        '" . Util::sqlAddSlashes($snapshot) . "',
+        '" . Util::sqlAddSlashes($create_sql) . "',
+        '" . Util::sqlAddSlashes("\n") . "',
+        '" . Util::sqlAddSlashes($tracking_set)
         . "' )";
 
         $result = PMA_queryAsControlUser($sql_query);
@@ -281,12 +280,12 @@ class Tracker
         $sql_query = "/*NOTRACK*/\n"
             . "DELETE FROM " . self::_getTrackingTable()
             . " WHERE `db_name` = '"
-            . $GLOBALS['dbi']->escapeString($dbname) . "'"
+            . Util::sqlAddSlashes($dbname) . "'"
             . " AND `table_name` = '"
-            . $GLOBALS['dbi']->escapeString($tablename) . "'";
+            . Util::sqlAddSlashes($tablename) . "'";
         if ($version) {
             $sql_query .= " AND `version` = '"
-                . $GLOBALS['dbi']->escapeString($version) . "'";
+                . Util::sqlAddSlashes($version) . "'";
         }
         $result = PMA_queryAsControlUser($sql_query);
 
@@ -339,15 +338,15 @@ class Tracker
         "tracking " .
         ") " .
         "values (
-        '" . $GLOBALS['dbi']->escapeString($dbname) . "',
-        '" . $GLOBALS['dbi']->escapeString('') . "',
-        '" . $GLOBALS['dbi']->escapeString($version) . "',
-        '" . $GLOBALS['dbi']->escapeString($date) . "',
-        '" . $GLOBALS['dbi']->escapeString($date) . "',
-        '" . $GLOBALS['dbi']->escapeString('') . "',
-        '" . $GLOBALS['dbi']->escapeString($create_sql) . "',
-        '" . $GLOBALS['dbi']->escapeString("\n") . "',
-        '" . $GLOBALS['dbi']->escapeString($tracking_set)
+        '" . Util::sqlAddSlashes($dbname) . "',
+        '" . Util::sqlAddSlashes('') . "',
+        '" . Util::sqlAddSlashes($version) . "',
+        '" . Util::sqlAddSlashes($date) . "',
+        '" . Util::sqlAddSlashes($date) . "',
+        '" . Util::sqlAddSlashes('') . "',
+        '" . Util::sqlAddSlashes($create_sql) . "',
+        '" . Util::sqlAddSlashes("\n") . "',
+        '" . Util::sqlAddSlashes($tracking_set)
         . "' )";
 
         $result = PMA_queryAsControlUser($sql_query);
@@ -375,9 +374,9 @@ class Tracker
 
         $sql_query = " UPDATE " . self::_getTrackingTable() .
         " SET `tracking_active` = '" . $new_state . "' " .
-        " WHERE `db_name` = '" . $GLOBALS['dbi']->escapeString($dbname) . "' " .
-        " AND `table_name` = '" . $GLOBALS['dbi']->escapeString($tablename) . "' " .
-        " AND `version` = '" . $GLOBALS['dbi']->escapeString($version) . "' ";
+        " WHERE `db_name` = '" . Util::sqlAddSlashes($dbname) . "' " .
+        " AND `table_name` = '" . Util::sqlAddSlashes($tablename) . "' " .
+        " AND `version` = '" . Util::sqlAddSlashes($version) . "' ";
 
         $result = PMA_queryAsControlUser($sql_query);
 
@@ -413,7 +412,7 @@ class Tracker
         if (is_array($new_data)) {
             foreach ($new_data as $data) {
                 $new_data_processed .= '# log ' . $date . ' ' . $data['username']
-                    . $GLOBALS['dbi']->escapeString($data['statement']) . "\n";
+                    . Util::sqlAddSlashes($data['statement']) . "\n";
             }
         } else {
             $new_data_processed = $new_data;
@@ -421,9 +420,9 @@ class Tracker
 
         $sql_query = " UPDATE " . self::_getTrackingTable() .
         " SET `" . $save_to . "` = '" . $new_data_processed . "' " .
-        " WHERE `db_name` = '" . $GLOBALS['dbi']->escapeString($dbname) . "' " .
-        " AND `table_name` = '" . $GLOBALS['dbi']->escapeString($tablename) . "' " .
-        " AND `version` = '" . $GLOBALS['dbi']->escapeString($version) . "' ";
+        " WHERE `db_name` = '" . Util::sqlAddSlashes($dbname) . "' " .
+        " AND `table_name` = '" . Util::sqlAddSlashes($tablename) . "' " .
+        " AND `version` = '" . Util::sqlAddSlashes($version) . "' ";
 
         $result = PMA_queryAsControlUser($sql_query);
 
@@ -479,8 +478,8 @@ class Tracker
     static public function getVersion($dbname, $tablename, $statement = null)
     {
         $sql_query = " SELECT MAX(version) FROM " . self::_getTrackingTable() .
-        " WHERE `db_name` = '" . $GLOBALS['dbi']->escapeString($dbname) . "' " .
-        " AND `table_name` = '" . $GLOBALS['dbi']->escapeString($tablename) . "' ";
+        " WHERE `db_name` = '" . Util::sqlAddSlashes($dbname) . "' " .
+        " AND `table_name` = '" . Util::sqlAddSlashes($tablename) . "' ";
 
         if ($statement != "") {
             $sql_query .= " AND FIND_IN_SET('"
@@ -508,12 +507,12 @@ class Tracker
     static public function getTrackedData($dbname, $tablename, $version)
     {
         $sql_query = " SELECT * FROM " . self::_getTrackingTable() .
-            " WHERE `db_name` = '" . $GLOBALS['dbi']->escapeString($dbname) . "' ";
+            " WHERE `db_name` = '" . Util::sqlAddSlashes($dbname) . "' ";
         if (! empty($tablename)) {
             $sql_query .= " AND `table_name` = '"
-                . $GLOBALS['dbi']->escapeString($tablename) . "' ";
+                . Util::sqlAddSlashes($tablename) . "' ";
         }
-        $sql_query .= " AND `version` = '" . $GLOBALS['dbi']->escapeString($version)
+        $sql_query .= " AND `version` = '" . Util::sqlAddSlashes($version)
             . "' " . " ORDER BY `version` DESC LIMIT 1";
 
         $mixed = $GLOBALS['dbi']->fetchAssoc(PMA_queryAsControlUser($sql_query));
@@ -917,14 +916,14 @@ class Tracker
                     . " UPDATE " . self::_getTrackingTable()
                     . " SET " . Util::backquote($save_to)
                     . " = CONCAT( " . Util::backquote($save_to) . ",'\n"
-                    . $GLOBALS['dbi']->escapeString($query) . "') ,"
+                    . Util::sqlAddSlashes($query) . "') ,"
                     . " `date_updated` = '" . $date . "' ";
 
                 // If table was renamed we have to change
                 // the tablename attribute in pma_tracking too
                 if ($result['identifier'] == 'RENAME TABLE') {
                     $sql_query .= ', `table_name` = \''
-                        . $GLOBALS['dbi']->escapeString($result['tablename_after_rename'])
+                        . Util::sqlAddSlashes($result['tablename_after_rename'])
                         . '\' ';
                 }
 
@@ -935,10 +934,10 @@ class Tracker
                 // we want to track
                 $sql_query .=
                 " WHERE FIND_IN_SET('" . $result['identifier'] . "',tracking) > 0" .
-                " AND `db_name` = '" . $GLOBALS['dbi']->escapeString($dbname) . "' " .
+                " AND `db_name` = '" . Util::sqlAddSlashes($dbname) . "' " .
                 " AND `table_name` = '"
-                . $GLOBALS['dbi']->escapeString($result['tablename']) . "' " .
-                " AND `version` = '" . $GLOBALS['dbi']->escapeString($version) . "' ";
+                . Util::sqlAddSlashes($result['tablename']) . "' " .
+                " AND `version` = '" . Util::sqlAddSlashes($version) . "' ";
 
                 PMA_queryAsControlUser($sql_query);
             }

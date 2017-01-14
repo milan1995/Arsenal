@@ -155,13 +155,12 @@ function PMA_RTN_handleEditor()
         } else {
             $message  = __('Error in processing request:') . ' ';
             $message .= sprintf(
-                PMA_RTE_getWord('no_edit'),
+                PMA_RTE_getWord('not_found'),
                 htmlspecialchars(
                     PMA\libraries\Util::backquote($_REQUEST['item_name'])
                 ),
                 htmlspecialchars(PMA\libraries\Util::backquote($db))
             );
-
             $message = Message::error($message);
             if ($GLOBALS['is_ajax_request']) {
                 $response = PMA\libraries\Response::getInstance();
@@ -563,23 +562,16 @@ function PMA_RTN_getDataFromRequest()
  * This function will generate the values that are required to complete
  * the "Edit routine" form given the name of a routine.
  *
- * @param string $name    The name of the routine.
- * @param string $type    Type of routine (ROUTINE|PROCEDURE)
- * @param bool   $all     Whether to return all data or just
- *                        the info about parameters.
- * @param bool   $control Where to use Controllink to query for
- *                        routine information
+ * @param string $name The name of the routine.
+ * @param string $type Type of routine (ROUTINE|PROCEDURE)
+ * @param bool   $all  Whether to return all data or just
+ *                     the info about parameters.
  *
  * @return array    Data necessary to create the routine editor.
  */
-function PMA_RTN_getDataFromName($name, $type, $all = true, $control = false)
+function PMA_RTN_getDataFromName($name, $type, $all = true)
 {
     global $db;
-    $link = null;
-
-    if ($control) {
-        $link = $GLOBALS['controllink'];
-    }
 
     $retval  = array();
 
@@ -588,12 +580,12 @@ function PMA_RTN_getDataFromName($name, $type, $all = true, $control = false)
              . "ROUTINE_DEFINITION, IS_DETERMINISTIC, SQL_DATA_ACCESS, "
              . "ROUTINE_COMMENT, SECURITY_TYPE";
     $where   = "ROUTINE_SCHEMA " . PMA\libraries\Util::getCollateForIS() . "="
-             . "'" . $GLOBALS['dbi']->escapeString($db) . "' "
-             . "AND SPECIFIC_NAME='" . $GLOBALS['dbi']->escapeString($name) . "'"
-             . "AND ROUTINE_TYPE='" . $GLOBALS['dbi']->escapeString($type) . "'";
+             . "'" . PMA\libraries\Util::sqlAddSlashes($db) . "' "
+             . "AND SPECIFIC_NAME='" . PMA\libraries\Util::sqlAddSlashes($name) . "'"
+             . "AND ROUTINE_TYPE='" . PMA\libraries\Util::sqlAddSlashes($type) . "'";
     $query   = "SELECT $fields FROM INFORMATION_SCHEMA.ROUTINES WHERE $where;";
 
-    $routine = $GLOBALS['dbi']->fetchSingleRow($query, 'ASSOC', $link);
+    $routine = $GLOBALS['dbi']->fetchSingleRow($query);
 
     if (! $routine) {
         return false;
@@ -603,19 +595,13 @@ function PMA_RTN_getDataFromName($name, $type, $all = true, $control = false)
     $retval['item_name'] = $routine['SPECIFIC_NAME'];
     $retval['item_type'] = $routine['ROUTINE_TYPE'];
 
-    $definition
-        = $GLOBALS['dbi']->getDefinition(
+    $parser = new SqlParser\Parser(
+        $GLOBALS['dbi']->getDefinition(
             $db,
             $routine['ROUTINE_TYPE'],
-            $routine['SPECIFIC_NAME'],
-            $link
-        );
-
-    if ($definition == NULL) {
-        return false;
-    }
-
-    $parser = new SqlParser\Parser($definition);
+            $routine['SPECIFIC_NAME']
+        )
+    );
 
     /**
      * @var CreateStatement $stmt
@@ -654,7 +640,7 @@ function PMA_RTN_getDataFromName($name, $type, $all = true, $control = false)
         }
 
         $retval['item_returntype']      = $stmt->return->name;
-        $retval['item_returnlength']    = implode(',', $stmt->return->parameters);
+        $retval['item_returnlength']    = implode(',', $stmt->return->size);
         $retval['item_returnopts_num']  = implode(' ', $options);
         $retval['item_returnopts_text'] = implode(' ', $options);
     }
@@ -1096,22 +1082,8 @@ function PMA_RTN_getQueryFromRequest()
     if (! empty($_REQUEST['item_definer'])) {
         if (mb_strpos($_REQUEST['item_definer'], '@') !== false) {
             $arr = explode('@', $_REQUEST['item_definer']);
-
-            $do_backquote = true;
-            if (substr($arr[0], 0, 1) === "`"
-                && substr($arr[0], -1) === "`"
-            ) {
-                $do_backquote = false;
-            }
-            $query .= 'DEFINER=' . PMA\libraries\Util::backquote($arr[0], $do_backquote);
-
-            $do_backquote = true;
-            if (substr($arr[1], 0, 1) === "`"
-                && substr($arr[1], -1) === "`"
-            ) {
-                $do_backquote = false;
-            }
-            $query .= '@' . PMA\libraries\Util::backquote($arr[1], $do_backquote) . ' ';
+            $query .= 'DEFINER=' . PMA\libraries\Util::backquote($arr[0]);
+            $query .= '@' . PMA\libraries\Util::backquote($arr[1]) . ' ';
         } else {
             $errors[] = __('The definer must be in the "username@hostname" format!');
         }
@@ -1267,7 +1239,7 @@ function PMA_RTN_getQueryFromRequest()
         $query .= ' ';
     }
     if (! empty($_REQUEST['item_comment'])) {
-        $query .= "COMMENT '" . $GLOBALS['dbi']->escapeString($_REQUEST['item_comment'])
+        $query .= "COMMENT '" . PMA\libraries\Util::sqlAddslashes($_REQUEST['item_comment'])
             . "' ";
     }
     if (isset($_REQUEST['item_isdeterministic'])) {
@@ -1311,7 +1283,7 @@ function PMA_RTN_handleExecute()
     if (! empty($_REQUEST['execute_routine']) && ! empty($_REQUEST['item_name'])) {
         // Build the queries
         $routine = PMA_RTN_getDataFromName(
-            $_REQUEST['item_name'], $_REQUEST['item_type'], false, true
+            $_REQUEST['item_name'], $_REQUEST['item_type'], false
         );
         if ($routine === false) {
             $message  = __('Error in processing request:') . ' ';
@@ -1342,7 +1314,7 @@ function PMA_RTN_handleExecute()
                 if (is_array($value)) { // is SET type
                     $value = implode(',', $value);
                 }
-                $value = $GLOBALS['dbi']->escapeString($value);
+                $value = PMA\libraries\Util::sqlAddSlashes($value);
                 if (! empty($_REQUEST['funcs'][$routine['item_param_name'][$i]])
                     && in_array(
                         $_REQUEST['funcs'][$routine['item_param_name'][$i]],
@@ -1509,7 +1481,7 @@ function PMA_RTN_handleExecute()
          * Display the execute form for a routine.
          */
         $routine = PMA_RTN_getDataFromName(
-            $_GET['item_name'], $_GET['item_type'], true, true
+            $_GET['item_name'], $_GET['item_type'], true
         );
         if ($routine !== false) {
             $form = PMA_RTN_getExecuteForm($routine);
@@ -1650,7 +1622,7 @@ function PMA_RTN_getExecuteForm($routine)
                 );
                 $retval .= "<select name='funcs["
                     . $routine['item_param_name'][$i] . "]'>";
-                $retval .= PMA\libraries\Util::getFunctionsForField($field, false, array());
+                $retval .= PMA\libraries\Util::getFunctionsForField($field, false);
                 $retval .= "</select>";
             }
             $retval .= "</td>\n";

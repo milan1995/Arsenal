@@ -101,7 +101,7 @@ class Config
      */
     public function checkSystem()
     {
-        $this->set('PMA_VERSION', '4.6.5.2');
+        $this->set('PMA_VERSION', '4.6.4');
         /**
          * @deprecated
          */
@@ -193,20 +193,20 @@ class Config
         // (must check everything else before Mozilla)
 
         $is_mozilla = preg_match(
-            '@Mozilla/([0-9]\.[0-9]{1,2})@',
+            '@Mozilla/([0-9].[0-9]{1,2})@',
             $HTTP_USER_AGENT,
             $mozilla_version
         );
 
         if (preg_match(
-            '@Opera(/| )([0-9]\.[0-9]{1,2})@',
+            '@Opera(/| )([0-9].[0-9]{1,2})@',
             $HTTP_USER_AGENT,
             $log_version
         )) {
             $this->set('PMA_USR_BROWSER_VER', $log_version[2]);
             $this->set('PMA_USR_BROWSER_AGENT', 'OPERA');
         } elseif (preg_match(
-            '@(MS)?IE ([0-9]{1,2}\.[0-9]{1,2})@',
+            '@(MS)?IE ([0-9]{1,2}.[0-9]{1,2})@',
             $HTTP_USER_AGENT,
             $log_version
         )) {
@@ -220,7 +220,7 @@ class Config
             $this->set('PMA_USR_BROWSER_VER', intval($log_version[1]) + 4);
             $this->set('PMA_USR_BROWSER_AGENT', 'IE');
         } elseif (preg_match(
-            '@OmniWeb/([0-9]{1,3})@',
+            '@OmniWeb/([0-9].[0-9]{1,2})@',
             $HTTP_USER_AGENT,
             $log_version
         )) {
@@ -265,7 +265,7 @@ class Config
                 'PMA_USR_BROWSER_VER', $log_version[1]
             );
             $this->set('PMA_USR_BROWSER_AGENT', 'FIREFOX');
-        } elseif (preg_match('@rv:1\.9(.*)Gecko@', $HTTP_USER_AGENT)) {
+        } elseif (preg_match('@rv:1.9(.*)Gecko@', $HTTP_USER_AGENT)) {
             $this->set('PMA_USR_BROWSER_VER', '1.9');
             $this->set('PMA_USR_BROWSER_AGENT', 'GECKO');
         } elseif ($is_mozilla) {
@@ -400,11 +400,10 @@ class Config
 
         $branch = false;
         // are we on any branch?
-        if (strstr($ref_head, '/')) {
-            // remove ref: prefix
-            $ref_head = substr(trim($ref_head), 5);
+        if (mb_strstr($ref_head, '/')) {
+            $ref_head = mb_substr(trim($ref_head), 5);
             if (substr($ref_head, 0, 11) === 'refs/heads/') {
-                $branch = substr($ref_head, 11);
+                $branch = mb_substr($ref_head, 11);
             } else {
                 $branch = basename($ref_head);
             }
@@ -451,9 +450,7 @@ class Config
         }
 
         $commit = false;
-        if (! preg_match('/^[0-9a-f]{40}$/i', $hash)) {
-            $commit = false;
-        } elseif (isset($_SESSION['PMA_VERSION_COMMITDATA_' . $hash])) {
+        if (isset($_SESSION['PMA_VERSION_COMMITDATA_' . $hash])) {
             $commit = $_SESSION['PMA_VERSION_COMMITDATA_' . $hash];
         } elseif (function_exists('gzuncompress')) {
             $git_file_name = $git_folder . '/objects/'
@@ -1360,12 +1357,8 @@ class Config
             return $this->get('is_https');
         }
 
-        $url = $this->get('PmaAbsoluteUri');
-
         $is_https = false;
-        if (! empty($url) && parse_url($url, PHP_URL_SCHEME) === 'https') {
-            $is_https = true;
-        } elseif (strtolower(PMA_getenv('HTTP_SCHEME')) == 'https') {
+        if (strtolower(PMA_getenv('HTTP_SCHEME')) == 'https') {
             $is_https = true;
         } elseif (strtolower(PMA_getenv('HTTPS')) == 'on') {
             $is_https = true;
@@ -1388,28 +1381,16 @@ class Config
     }
 
     /**
-     * Get phpMyAdmin root path
+     * Get cookie path
      *
      * @return string
      */
-    public function getRootPath()
+    public function getCookiePath()
     {
         static $cookie_path = null;
 
         if (null !== $cookie_path && !defined('TESTSUITE')) {
             return $cookie_path;
-        }
-
-        $url = $this->get('PmaAbsoluteUri');
-
-        if (! empty($url)) {
-            $path = parse_url($url, PHP_URL_PATH);
-            if (! empty($path)) {
-                if (substr($path, -1) != '/') {
-                    return $path . '/';
-                }
-                return $path;
-            }
         }
 
         $parsed_url = parse_url($GLOBALS['PMA_PHP_SELF']);
@@ -1596,7 +1577,7 @@ class Config
             $cookie,
             '',
             time() - 3600,
-            $this->getRootPath(),
+            $this->getCookiePath(),
             '',
             $this->isHttps()
         );
@@ -1650,7 +1631,7 @@ class Config
                 $cookie,
                 $value,
                 $validity,
-                $this->getRootPath(),
+                $this->getCookiePath(),
                 '',
                 $this->isHttps(),
                 $httponly

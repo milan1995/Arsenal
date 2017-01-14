@@ -641,110 +641,76 @@ class ConfigTest extends PMATestCase
     }
 
     /**
-     * Test for getting root path
+     * Test for getting cookie path
      *
-     * @param string $request  The request URL used for phpMyAdmin
      * @param string $absolute The absolute URL used for phpMyAdmin
-     * @param string $expected Expected root path
+     * @param string $expected Expected cookie path
      *
      * @return void
      *
-     * @dataProvider rootUris
+     * @dataProvider cookieUris
      */
-    public function testGetRootPath($request, $absolute, $expected)
+    public function testGetCookiePath($absolute, $expected)
     {
-        $GLOBALS['PMA_PHP_SELF'] = $request;
-        $this->object->set('PmaAbsoluteUri', $absolute);
-        $this->assertEquals($expected, $this->object->getRootPath());
+        $GLOBALS['PMA_PHP_SELF'] = $absolute;
+        $this->assertEquals($expected, $this->object->getCookiePath());
     }
 
     /**
-     * Data provider for testGetRootPath
+     * Data provider for testGetCookiePath
      *
-     * @return array data for testGetRootPath
+     * @return array data for testGetCookiePath
      */
-    public function rootUris()
+    public function cookieUris()
     {
         return array(
             array(
                 '',
-                '',
                 '/',
             ),
             array(
                 '/',
-                '',
                 '/',
             ),
             array(
                 '/index.php',
-                '',
                 '/',
             ),
             array(
                 '\\index.php',
-                '',
                 '/',
             ),
             array(
                 '\\',
-                '',
                 '/',
             ),
             array(
                 '\\path\\to\\index.php',
-                '',
                 '/path/to/',
             ),
             array(
                 '/foo/bar/phpmyadmin/index.php',
-                '',
                 '/foo/bar/phpmyadmin/',
             ),
             array(
                 '/foo/bar/phpmyadmin/',
-                '',
                 '/foo/bar/phpmyadmin/',
             ),
             array(
                 'https://example.net/baz/phpmyadmin/',
-                '',
                 '/baz/phpmyadmin/',
             ),
             array(
                 'http://example.net/baz/phpmyadmin/',
-                '',
                 '/baz/phpmyadmin/',
             ),
             array(
                 'http://example.net/phpmyadmin/',
-                '',
                 '/phpmyadmin/',
             ),
             array(
                 'http://example.net/',
-                '',
                 '/',
-            ),
-            array(
-                'http://example.net/',
-                'http://example.net/phpmyadmin/',
-                '/phpmyadmin/',
-            ),
-            array(
-                'http://example.net/',
-                'http://example.net/phpmyadmin',
-                '/phpmyadmin/',
-            ),
-            array(
-                'http://example.net/',
-                '/phpmyadmin2',
-                '/phpmyadmin2/',
-            ),
-            array(
-                'http://example.net/',
-                '/phpmyadmin3/',
-                '/phpmyadmin3/',
             ),
         );
     }

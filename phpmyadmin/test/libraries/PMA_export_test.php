@@ -14,7 +14,7 @@
 require_once 'libraries/export.lib.php';
 
 /**
- * class PMA_Export_Test
+ * class PMA_DisplayExport_Test
  *
  * this class is for testing export.lib.php functions
  *

@@ -172,7 +172,7 @@ class PMA_SqlTest extends PHPUnit_Framework_TestCase
     public function testHasNoRightsToDropDatabase()
     {
         $this->assertEquals(
-            true,
+            !defined('PMA_CHK_DROP'),
             PMA_hasNoRightsToDropDatabase(
                 PMA_parseAndAnalyze('DROP DATABASE db'),
                 false,
@@ -181,7 +181,7 @@ class PMA_SqlTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            false,
+            !defined('PMA_CHK_DROP'),
             PMA_hasNoRightsToDropDatabase(
                 PMA_parseAndAnalyze('DROP TABLE tbl'),
                 false,
@@ -190,7 +190,7 @@ class PMA_SqlTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            false,
+            !defined('PMA_CHK_DROP'),
             PMA_hasNoRightsToDropDatabase(
                 PMA_parseAndAnalyze('SELECT * from tbl'),
                 false,

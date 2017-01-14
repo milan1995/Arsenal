@@ -234,15 +234,29 @@ class ExportXmlTest extends PMATestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dbi->expects($this->exactly(3))
+        $dbi->expects($this->at(0))
             ->method('fetchResult')
-            ->willReturnOnConsecutiveCalls(
-                $result,
-                $result,
-                false
-            );
+            ->with(
+                'SELECT `DEFAULT_CHARACTER_SET_NAME`, `DEFAULT_COLLATION_NAME`'
+                . ' FROM `information_schema`.`SCHEMATA` WHERE `SCHEMA_NAME`'
+                . ' = \'d<"b\' LIMIT 1'
+            )
+            ->will($this->returnValue($result));
 
-        $dbi->expects($this->once())
+        $dbi->expects($this->at(1))
+            ->method('fetchResult')
+            ->with(
+                'SHOW CREATE TABLE `d<"b`.`table`',
+                0
+            )
+            ->will($this->returnValue($result));
+
+        // isView
+        $dbi->expects($this->at(2))
+            ->method('fetchResult')
+            ->will($this->returnValue(false));
+
+        $dbi->expects($this->at(3))
             ->method('getTriggers')
             ->with('d<"b', 'table')
             ->will(
@@ -256,29 +270,49 @@ class ExportXmlTest extends PMATestCase
                 )
             );
 
-        $dbi->expects($this->exactly(2))
+        $dbi->expects($this->at(4))
             ->method('getProceduresOrFunctions')
-            ->willReturnOnConsecutiveCalls(
-                array(
-                    'fn'
-                ),
-                array(
-                    'pr'
+            ->with('d<"b', 'FUNCTION')
+            ->will(
+                $this->returnValue(
+                    array(
+                        'fn'
+                    )
                 )
             );
 
-        $dbi->expects($this->exactly(2))
+        $dbi->expects($this->at(5))
             ->method('getDefinition')
-            ->willReturnOnConsecutiveCalls(
-                'fndef',
-                'prdef'
+            ->with('d<"b', 'FUNCTION', 'fn')
+            ->will(
+                $this->returnValue(
+                    'fndef'
+                )
+            );
+
+        $dbi->expects($this->at(6))
+            ->method('getProceduresOrFunctions')
+            ->with('d<"b', 'PROCEDURE')
+            ->will(
+                $this->returnValue(
+                    array(
+                        'pr'
+                    )
+                )
+            );
+
+        $dbi->expects($this->at(7))
+            ->method('getDefinition')
+            ->with('d<"b', 'PROCEDURE', 'pr')
+            ->will(
+                $this->returnValue(
+                    'prdef'
+                )
             );
 
         $dbi->expects($this->once())
             ->method('getTable')
-            ->will($this->returnValue(new Table('table', 'd<"b', $dbi)));
-        $dbi->expects($this->any())->method('escapeString')
-            ->will($this->returnArgument(0));
+            ->will($this->returnValue(new Table('table', 'd<"b')));
 
         $GLOBALS['dbi'] = $dbi;
 
@@ -327,39 +361,63 @@ class ExportXmlTest extends PMATestCase
         unset($GLOBALS['xml_export_procedures']);
         $GLOBALS['output_charset_conversion'] = 0;
 
-        $dbi = $this->getMockBuilder('PMA\libraries\DatabaseInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $result_1 = array(
+        $result = array(
             array(
                 'DEFAULT_COLLATION_NAME' => 'utf8_general_ci',
                 'DEFAULT_CHARACTER_SET_NAME' => 'utf-8',
 
             )
         );
-        $result_2 = array(
+        $dbi = $this->getMockBuilder('PMA\libraries\DatabaseInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dbi->expects($this->at(0))
+            ->method('fetchResult')
+            ->with(
+                'SELECT `DEFAULT_CHARACTER_SET_NAME`, `DEFAULT_COLLATION_NAME`'
+                . ' FROM `information_schema`.`SCHEMATA` WHERE `SCHEMA_NAME`'
+                . ' = \'d<"b\' LIMIT 1'
+            )
+            ->will($this->returnValue($result));
+
+        $result = array(
             't1' => array(null, '"tbl"')
         );
 
-        $result_3 = array(
+        $dbi->expects($this->at(1))
+            ->method('fetchResult')
+            ->with(
+                'SHOW CREATE TABLE `d<"b`.`t1`',
+                0
+            )
+            ->will($this->returnValue($result));
+
+        // isView
+        $dbi->expects($this->at(2))
+            ->method('fetchResult')
+            ->will($this->returnValue(true));
+
+        $result = array(
             't2' => array(null, '"tbl"')
         );
 
-
-        $dbi->expects($this->exactly(5))
+        $dbi->expects($this->at(3))
             ->method('fetchResult')
-            ->willReturnOnConsecutiveCalls(
-                $result_1,
-                $result_2,
-                true,
-                $result_3,
-                false
-            );
+            ->with(
+                'SHOW CREATE TABLE `d<"b`.`t2`',
+                0
+            )
+            ->will($this->returnValue($result));
+
+        // isView
+        $dbi->expects($this->at(4))
+            ->method('fetchResult')
+            ->will($this->returnValue(false));
 
         $dbi->expects($this->any())
             ->method('getTable')
-            ->will($this->returnValue(new Table('table', 'd<"b', $dbi)));
+            ->will($this->returnValue(new Table('table', 'd<"b')));
 
         $GLOBALS['dbi'] = $dbi;
 

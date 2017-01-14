@@ -963,13 +963,13 @@ function PMA_handleRequestForSlaveChangeMaster()
 {
     $sr = array();
     $_SESSION['replication']['m_username'] = $sr['username']
-        = $GLOBALS['dbi']->escapeString($_REQUEST['username']);
+        = PMA\libraries\Util::sqlAddSlashes($_REQUEST['username']);
     $_SESSION['replication']['m_password'] = $sr['pma_pw']
-        = $GLOBALS['dbi']->escapeString($_REQUEST['pma_pw']);
+        = PMA\libraries\Util::sqlAddSlashes($_REQUEST['pma_pw']);
     $_SESSION['replication']['m_hostname'] = $sr['hostname']
-        = $GLOBALS['dbi']->escapeString($_REQUEST['hostname']);
+        = PMA\libraries\Util::sqlAddSlashes($_REQUEST['hostname']);
     $_SESSION['replication']['m_port']     = $sr['port']
-        = $GLOBALS['dbi']->escapeString($_REQUEST['text_port']);
+        = PMA\libraries\Util::sqlAddSlashes($_REQUEST['text_port']);
     $_SESSION['replication']['m_correct']  = '';
     $_SESSION['replication']['sr_action_status'] = 'error';
     $_SESSION['replication']['sr_action_info'] = __('Unknown error');

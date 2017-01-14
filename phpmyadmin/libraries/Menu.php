@@ -139,7 +139,7 @@ class Menu
                 . " AND `tab` LIKE '" . $level . "%'"
                 . " AND `usergroup` = (SELECT usergroup FROM "
                 . $userTable . " WHERE `username` = '"
-                . $GLOBALS['dbi']->escapeString($GLOBALS['cfg']['Server']['user']) . "')";
+                . Util::sqlAddSlashes($GLOBALS['cfg']['Server']['user']) . "')";
 
             $result = PMA_queryAsControlUser($sql_query, false);
             if ($result) {

@@ -316,18 +316,13 @@ class ExportOdsTest extends PMATestCase
             ->with(true)
             ->will($this->returnValue($flags));
 
-        $dbi->expects($this->exactly(8))
+        $dbi->expects($this->at(4))
             ->method('fieldFlags')
-            ->willReturnOnConsecutiveCalls(
-                'BINARYTEST',
-                'binary',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''
-            );
+            ->will($this->returnValue('BINARYTEST'));
+
+        $dbi->expects($this->at(5))
+            ->method('fieldFlags')
+            ->will($this->returnValue('binary'));
 
         $dbi->expects($this->once())
             ->method('query')
@@ -350,6 +345,11 @@ class ExportOdsTest extends PMATestCase
                     )
                 )
             );
+
+        $dbi->expects($this->at(12))
+            ->method('fetchRow')
+            ->with(true)
+            ->will($this->returnValue(null));
 
         $GLOBALS['dbi'] = $dbi;
         $GLOBALS['mediawiki_caption'] = true;

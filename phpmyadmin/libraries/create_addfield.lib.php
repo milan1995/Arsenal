@@ -166,7 +166,7 @@ function PMA_buildIndexStatements($index, $index_choice,
     $keyBlockSizes = $index['Key_block_size'];
     if (! empty($keyBlockSizes)) {
         $sql_query .= " KEY_BLOCK_SIZE = "
-             . $GLOBALS['dbi']->escapeString($keyBlockSizes);
+             . PMA\libraries\Util::sqlAddSlashes($keyBlockSizes);
     }
 
     // specifying index type is allowed only for primary, unique and index only
@@ -180,12 +180,12 @@ function PMA_buildIndexStatements($index, $index_choice,
 
     $parser = $index['Parser'];
     if ($index['Index_choice'] == 'FULLTEXT' && ! empty($parser)) {
-        $sql_query .= " WITH PARSER " . $GLOBALS['dbi']->escapeString($parser);
+        $sql_query .= " WITH PARSER " . PMA\libraries\Util::sqlAddSlashes($parser);
     }
 
     $comment = $index['Index_comment'];
     if (! empty($comment)) {
-        $sql_query .= " COMMENT '" . $GLOBALS['dbi']->escapeString($comment)
+        $sql_query .= " COMMENT '" . PMA\libraries\Util::sqlAddSlashes($comment)
             . "'";
     }
 
@@ -322,7 +322,7 @@ function PMA_getPartitionsDefinition()
         $i = 0;
         $partitions = array();
         foreach ($_REQUEST['partitions'] as $partition) {
-            $partitions[] = PMA_getPartitionDefinition($partition);
+            $partitions[] = PMA_getPartitionDefinition('p' . $i, $partition);
             $i++;
         }
         $sql_query .= " (" . implode(", ", $partitions) . ")";
@@ -334,15 +334,15 @@ function PMA_getPartitionsDefinition()
 /**
  * Returns the definition of a partition/subpartition
  *
+ * @param string  $name           name of the partition/subpartition
  * @param array   $partition      array of partition/subpartition detiails
  * @param boolean $isSubPartition whether a subpartition
  *
  * @return string partition/subpartition definition
  */
-function PMA_getPartitionDefinition($partition, $isSubPartition = false)
+function PMA_getPartitionDefinition($name, $partition, $isSubPartition = false)
 {
-    $sql_query = " " . ($isSubPartition ? "SUB" : "") . "PARTITION ";
-    $sql_query .= $partition['name'];
+    $sql_query = " " . ($isSubPartition ? "SUB" : "") . "PARTITION " . $name;
 
     if (! empty($partition['value_type'])) {
         $sql_query .= " VALUES " . $partition['value_type'];
@@ -382,6 +382,7 @@ function PMA_getPartitionDefinition($partition, $isSubPartition = false)
         $subpartitions = array();
         foreach ($partition['subpartitions'] as $subpartition) {
             $subpartitions[] = PMA_getPartitionDefinition(
+                $name . 's' . $j,
                 $subpartition,
                 true
             );
@@ -424,11 +425,11 @@ function PMA_getTableCreationQuery($db, $table)
         && $_REQUEST['tbl_storage_engine'] == 'FEDERATED'
     ) {
         $sql_query .= " CONNECTION = '"
-            . $GLOBALS['dbi']->escapeString($_REQUEST['connection']) . "'";
+            . PMA\libraries\Util::sqlAddSlashes($_REQUEST['connection']) . "'";
     }
     if (!empty($_REQUEST['comment'])) {
         $sql_query .= ' COMMENT = \''
-            . $GLOBALS['dbi']->escapeString($_REQUEST['comment']) . '\'';
+            . PMA\libraries\Util::sqlAddSlashes($_REQUEST['comment']) . '\'';
     }
     $sql_query .= PMA_getPartitionsDefinition();
     $sql_query .= ';';

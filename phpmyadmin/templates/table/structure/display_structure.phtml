@@ -160,9 +160,7 @@ $rownum = 0; $odd_row = true; ?>
         $partitions = Partition::getPartitions($db, $table);
         $firstPartition = $partitions[0];
         $rangeOrList = $firstPartition->getMethod() == 'RANGE'
-            || $firstPartition->getMethod() == 'RANGE COLUMNS'
-            || $firstPartition->getMethod() == 'LIST'
-            || $firstPartition->getMethod() == 'LIST COLUMNS';
+            || $firstPartition->getMethod() == 'LIST';
         $subParitions = $firstPartition->getSubPartitions();
         $hasSubPartitions = $firstPartition->hasSubPartitions();
         if ($hasSubPartitions) {

@@ -152,8 +152,6 @@ function PMA_addDatepicker($this_element, type, options)
     }
     else if (type == "time") {
         $this_element.timepicker($.extend(defaultOptions, options));
-        // Add a tip regarding entering MySQL allowed-values for TIME data-type
-        PMA_tooltip($this_element, 'input', PMA_messages.strMysqlAllowedValuesTip);
     }
 }
 
@@ -187,14 +185,6 @@ function addDateTimePicker() {
                 showMicrosec: showMicrosec,
                 timeFormat: timeFormat
             });
-
-            // Add a tip regarding entering MySQL allowed-values
-            // for TIME and DATE data-type
-            if ($(this).hasClass('timefield')) {
-                PMA_tooltip($(this), 'input', PMA_messages.strMysqlAllowedValuesTipTime);
-            } else if ($(this).hasClass('datefield')) {
-                PMA_tooltip($(this), 'input', PMA_messages.strMysqlAllowedValuesTipDate);
-            }
         });
     }
 }
@@ -309,7 +299,7 @@ function PMA_clearSelection() {
  *
  * @param $elements     jQuery object representing the elements
  * @param item          the item
- *                      (see https://api.jqueryui.com/tooltip/#option-items)
+ *                      (see http://api.jqueryui.com/tooltip/#option-items)
  * @param myContent     content of the tooltip
  * @param additionalOptions to override the default options
  *
@@ -515,10 +505,9 @@ function PMA_current_version(data)
     if (data && data.version && data.date) {
         var current = parseVersionString($('span.version').text());
         var latest = parseVersionString(data.version);
-        var url = 'https://web.phpmyadmin.net/files/' + escapeHtml(data.version) + '/';
         var version_information_message = '<span class="latest">' +
             PMA_messages.strLatestAvailable +
-            ' <a href="' + url + '">' + escapeHtml(data.version) + '</a>' +
+            ' ' + escapeHtml(data.version) +
             '</span>';
         if (latest > current) {
             var message = PMA_sprintf(
@@ -532,7 +521,7 @@ function PMA_current_version(data)
                 htmlClass = 'error';
             }
             $('#newer_version_notice').remove();
-            $('#maincontainer').after('<div id="newer_version_notice" class="' + htmlClass + '"><a href="' + url + '">' + message + '</a></div>');
+            $('#maincontainer').after('<div id="newer_version_notice" class="' + htmlClass + '">' + message + '</div>');
         }
         if (latest === current) {
             version_information_message = ' (' + PMA_messages.strUpToDate + ')';
@@ -624,12 +613,8 @@ function confirmLink(theLink, theSqlQuery)
     if (is_confirmed) {
         if ($(theLink).hasClass('formLinkSubmit')) {
             var name = 'is_js_confirmed';
-
             if ($(theLink).attr('href').indexOf('usesubform') != -1) {
-                var matches = $(theLink).attr('href').substr('#').match(/usesubform\[(\d+)\]/i);
-                if (matches != null) {
-                    name = 'subform[' + matches[1] + '][is_js_confirmed]';
-                }
+                name = 'subform[' + $(theLink).attr('href').substr('#').match(/usesubform\[(\d+)\]/i)[1] + '][is_js_confirmed]';
             }
 
             $(theLink).parents('form').append('<input type="hidden" name="' + name + '" value="1" />');
@@ -644,7 +629,8 @@ function confirmLink(theLink, theSqlQuery)
 } // end of the 'confirmLink()' function
 
 /**
- * Confirms a "DROP/DELETE/ALTER" query before
+ * Displays an error message if a "DROP DATABASE" statement is submitted
+ * while it isn't allowed, else confirms a "DROP/DELETE/ALTER" query before
  * submitting it if required.
  * This function is called by the 'checkSqlQuery()' js function.
  *
@@ -662,6 +648,17 @@ function confirmQuery(theForm1, sqlQuery1)
         return true;
     }
 
+    // "DROP DATABASE" statement isn't allowed
+    if (PMA_messages.strNoDropDatabases !== '') {
+        var drop_re = new RegExp('(^|;)\\s*DROP\\s+(IF EXISTS\\s+)?DATABASE\\s', 'i');
+        if (drop_re.test(sqlQuery1.value)) {
+            alert(PMA_messages.strNoDropDatabases);
+            theForm1.reset();
+            sqlQuery1.focus();
+            return false;
+        } // end if
+    } // end if
+
     // Confirms a "DROP/DELETE/ALTER/TRUNCATE" statement
     //
     // TODO: find a way (if possible) to use the parser-analyser
@@ -669,7 +666,7 @@ function confirmQuery(theForm1, sqlQuery1)
     // For now, I just added a ^ to check for the statement at
     // beginning of expression
 
-    var do_confirm_re_0 = new RegExp('^\\s*DROP\\s+(IF EXISTS\\s+)?(TABLE|PROCEDURE)\\s', 'i');
+    var do_confirm_re_0 = new RegExp('^\\s*DROP\\s+(IF EXISTS\\s+)?(TABLE|DATABASE|PROCEDURE)\\s', 'i');
     var do_confirm_re_1 = new RegExp('^\\s*ALTER\\s+TABLE\\s+((`[^`]+`)|([A-Za-z0-9_$]+))\\s+DROP\\s', 'i');
     var do_confirm_re_2 = new RegExp('^\\s*DELETE\\s+FROM\\s', 'i');
     var do_confirm_re_3 = new RegExp('^\\s*TRUNCATE\\s', 'i');
@@ -914,13 +911,13 @@ AJAX.registerOnload('functions.js', function () {
                 data: params,
                 success: function (data) {
                     if (data.success) {
-                        var remaining = PMA_commonParams.get('LoginCookieValidity') - _idleSecondsCounter;
-                        if (remaining > 5) {
-                            // max value for setInterval() function
-                            var interval = Math.min(remaining * 1000, Math.pow(2, 31) - 1);
+                        if (PMA_commonParams.get('LoginCookieValidity')-_idleSecondsCounter > 5) {
+                            var interval = (PMA_commonParams.get('LoginCookieValidity') - _idleSecondsCounter - 5) * 1000;
+                            if (interval > Math.pow(2, 31) - 1) { // max value for setInterval() function
+                                interval = Math.pow(2, 31) - 1;
+                            }
                             updateTimeout = window.setTimeout(UpdateIdleTime, interval);
-                        } else if (remaining > 0) {
-                            // We're close to session expiry
+                        } else {
                             updateTimeout = window.setTimeout(UpdateIdleTime, 2000);
                         }
                     } else { //timeout occurred
@@ -1167,9 +1164,7 @@ function insertQuery(queryType)
         }
         return;
     } else if (queryType == "saved") {
-        if (isStorageSupported('localStorage') && typeof window.localStorage.auto_saved_sql != 'undefined') {
-            setQuery(window.localStorage.auto_saved_sql);
-        } else if ($.cookie('auto_saved_sql')) {
+        if ($.cookie('auto_saved_sql')) {
             setQuery($.cookie('auto_saved_sql'));
         } else {
             PMA_ajaxShowMessage(PMA_messages.strNoAutoSavedQuery);
@@ -4828,6 +4823,11 @@ function formatBytes(bytes, subdecimals, pointchar) {
 
 AJAX.registerOnload('functions.js', function () {
     /**
+     * Opens pma more themes link in themes browser, in new window instead of popup
+     * This way, we don't break HTML validity
+     */
+    $("a._blank").prop("target", "_blank");
+    /**
      * Reveal the login form to users with JS enabled
      * and focus the appropriate input field
      */
@@ -4941,30 +4941,6 @@ function PMA_ignorePhpErrors(clearPrevErrors){
     var $pmaErrors = $('#pma_errors');
     $pmaErrors.fadeOut( "slow");
     $pmaErrors.remove();
-}
-
-/**
- * Toggle the Datetimepicker UI if the date value entered
- * by the user in the 'text box' is not going to be accepted
- * by the Datetimepicker plugin (but is accepted by MySQL)
- */
-function toggleDatepickerIfInvalid($td, $input_field) {
-    // Regex allowed by the Datetimepicker UI
-    var dtexpDate = new RegExp(['^([0-9]{4})',
-        '-(((01|03|05|07|08|10|12)-((0[1-9])|([1-2][0-9])|(3[0-1])))|((02|04|06|09|11)',
-        '-((0[1-9])|([1-2][0-9])|30)))$'].join(''));
-    var dtexpTime = new RegExp(['^(([0-1][0-9])|(2[0-3]))',
-        ':((0[0-9])|([1-5][0-9]))',
-        ':((0[0-9])|([1-5][0-9]))(\.[0-9]{1,6}){0,1}$'].join(''));
-
-    // If key-ed in Time or Date values are unsupported by the UI, close it
-    if ($td.attr('data-type') === 'date' && ! dtexpDate.test($input_field.val())) {
-        $input_field.datepicker('hide');
-    } else if ($td.attr('data-type') === 'time' && ! dtexpTime.test($input_field.val())) {
-        $input_field.datepicker('hide');
-    } else {
-        $input_field.datepicker('show');
-    }
 }
 
 /**

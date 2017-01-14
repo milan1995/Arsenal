@@ -68,9 +68,8 @@ $strPrivDescDropTbl = __('Allows dropping tables.');
 $strPrivDescEvent = __('Allows to set up events for the event scheduler.');
 $strPrivDescExecute = __('Allows executing stored routines.');
 $strPrivDescFile = __('Allows importing data from and exporting data into files.');
-$strPrivDescGrantTbl = __(
-    'Allows user to give to other users or remove from other users the privileges '
-    . 'that user possess yourself.'
+$strPrivDescGrant = __(
+    'Allows adding users and privileges without reloading the privilege tables.'
 );
 $strPrivDescIndex = __('Allows creating and dropping indexes.');
 $strPrivDescInsert = __('Allows inserting and replacing data.');

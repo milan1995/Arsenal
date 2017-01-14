@@ -40,7 +40,6 @@ class PMA_sanitizeMySQLHost_test extends PHPUnit_Framework_TestCase
     {
         return array(
             array('p:foo.bar', 'foo.bar'),
-            array('p:p:foo.bar', 'foo.bar'),
             array('bar.baz', 'bar.baz'),
             array('P:example.com', 'example.com'),
         );
