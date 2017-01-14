@@ -23,7 +23,7 @@ $output='';
 		}
 	}
 	*/
-	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+	$dbh= new PDO("mysql:dbname=sampledb;host=mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 	$sql = 'SELECT ime,prezime FROM registracija';
     foreach ($dbh->query($sql) as $row) {
 		$fname=$row['ime'];
