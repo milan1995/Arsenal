@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <?php
-var_dump($_SERVER);
 session_start();
 if(isset($_SESSION['username']))
 	$logined=true;
