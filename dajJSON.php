@@ -6,7 +6,7 @@ header('Content-type: text/javascript');
 );*/
 $pretraga= $_GET['upit'];
 $json=array();
-$dbh= new PDO("mysql:dbname=spirala4;host=localhost;charset=utf8", "milan", "Prazina1");
+$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
 		$sql = 'SELECT username,password FROM login ORDER BY username';
     foreach ($dbh->query($sql) as $row) {
 		$fname=$row['username'];
