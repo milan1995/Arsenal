@@ -15,7 +15,7 @@ if(isset($_POST['change'])){
 			die;
 	}*/
 	//idemo bazno obrisati
-	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+	$dbh= new PDO("mysql:dbname=sampledb;host=mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 		$upit = $dbh->prepare("DELETE  FROM login WHERE username=?");
 		$upit->bindValue(1, $username, PDO::PARAM_STR);
 		$upit->execute();
