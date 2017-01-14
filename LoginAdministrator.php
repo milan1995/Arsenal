@@ -9,7 +9,7 @@
 			fputcsv($fp, $filer);
 	}*/
 	//bazno rješenje
-	$dbh1= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+	$dbh1= new PDO("mysql:dbname=sampledb;host=mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 		$sql1 = 'SELECT username,password FROM login ORDER BY username';
     foreach ($dbh1->query($sql1) as $row) {
 		$filer =array($row['username'],$row['password']);
@@ -72,7 +72,7 @@ $staviUCSV=false;
 	<th>Password</th>
 	</tr>
 	<?php
-	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+	$dbh= new PDO("mysql:dbname=sampledb;host=mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 		$sql = 'SELECT username,password FROM login ORDER BY username';
     foreach ($dbh->query($sql) as $row) {
 		echo '
