@@ -19,7 +19,7 @@ if(isset($_POST['change'])){
 			die;
 	}*/
 	
-	$dbh= new PDO("mysql:dbname=spirala4;host=localhost;charset=utf8", "milan", "Prazina1");
+	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
 		$upit = $dbh->prepare("UPDATE login SET password=? WHERE username=?");
 		$upit->bindValue(1, $new, PDO::PARAM_STR);
 		$upit->bindValue(2, $username, PDO::PARAM_STR);
