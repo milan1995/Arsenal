@@ -1,0 +1,76 @@
+.login_form{
+    position: relative;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    border-radius: 30px;
+}
+
+.login_form ul {
+	margin-top: 2%;
+    width:50%;
+    margin-left: auto;
+	margin-right: auto;
+    list-style-type:none;
+    padding:5px;
+}
+.login_form li{
+    padding:18px; 
+    border-bottom:1px solid silver;
+    position:relative;
+}
+.login_form label {
+    width:35%;
+    margin-top: 3px;
+    display:inline-block;
+    float:left;
+    padding:3px;
+}
+.login_form input {
+    height:20px; 
+    width:50%; 
+    max-width: 50%;
+    padding:5px;
+}
+
+.login_form textarea {
+	padding:5px;
+	width:50%;
+	}
+	.loginlink
+{
+	font-size: 100%;
+}
+button {
+    position: relative;
+	margin-right:auto;
+    width: 50%;
+    background-color: #ADD8E6;
+
+}
+@media only screen and (max-width: 800px) {
+.login_form{
+    position: relative;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    border-radius: 10px;
+	margin-top:150px;
+}
+.login_form ul {
+	margin-top: 2%;
+    width:80%;
+    margin-left: auto;
+	margin-right: auto;
+    list-style-type:none;
+    padding:5px;
+}
+.login_form li{
+    padding:18px; 
+    border-bottom:1px solid silver;
+    position:relative;
+	font-size: 12px !important;
+}
+}

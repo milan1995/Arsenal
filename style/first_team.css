@@ -1,0 +1,16 @@
+.firsteleven
+{
+	width:50%;
+	margin-left:20%;
+	list-style-type: none;
+}
+.player h1{
+	color: black;
+	text-decoration: none;
+}
+.player
+{
+	background: Khaki;
+    font-family:Tahoma;
+	padding:10px;
+}
