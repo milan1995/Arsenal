@@ -46,7 +46,7 @@ $passError='';
 		$emailError = 'E-mail treba biti u formatu ime@provajder.domena';
 		} 
 if($bezGreske && $nameError=='' && $firstNameError=='' && $lastNameError=='' && $passEqual=='' && $passError=='' && $emailError==''){
-	$dbh= new PDO("mysql:dbname=spirala4;host=localhost;charset=utf8", "milan", "Prazina1");
+	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
 	//registration folder
 	/*$xml= new SimpleXMLElement('<user></user>');
 	$xml->addChild('first_name',$first_name);
