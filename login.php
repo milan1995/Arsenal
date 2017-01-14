@@ -21,7 +21,7 @@ $error =false;
 	
 	if($passError=='' && $nameError=='')
 	{
-		$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+		$dbh= new PDO("mysql:dbname=sampledb;host=mysql://mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 		$upit = $dbh->prepare("SELECT password FROM login WHERE username=?");
 		$upit->bindValue(1, $username, PDO::PARAM_STR);
 		$upit->execute();
