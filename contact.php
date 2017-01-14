@@ -32,7 +32,7 @@ $error =false;
 			$xml->asXML('ContactMessages/'.$broj.'.xml');
 		}
 		// dodaj u bazu
-		$dbh= new PDO("mysql:dbname=spirala4;host=localhost;charset=utf8", "milan", "Prazina1");
+		$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
 		//u bazu korisnike  
 	$stmt = $dbh->prepare("INSERT INTO poruka (username, poruka) VALUES (:name, :value)");
 	$stmt->bindParam(':name', $name);
