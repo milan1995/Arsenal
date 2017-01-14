@@ -37,6 +37,7 @@ else
 	<h2>Welcome 
 	<?php
 		var_dump($_SERVER);
+		var_dump($_ENV);
 	if($logined){
 	echo $_SESSION['username'];
 if($_SESSION['username']=="admin")
