@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <?php
+var_dump($_SERVER);
 session_start();
 if(isset($_SESSION['username']))
 	$logined=true;
@@ -36,6 +37,7 @@ else
 	<a style="color:white;"href="search.php" >Search</a>
 	<h2>Welcome 
 	<?php
+		var_dump($_SERVER);
 	if($logined){
 	echo $_SESSION['username'];
 if($_SESSION['username']=="admin")
