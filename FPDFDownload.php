@@ -46,7 +46,7 @@ $i=1;
 		$i=$i+1;
 	}*/
 	//uzmi sa baze umjesto XMl-a
-	$dbh= new PDO("mysql:dbname=baza;host=mysql-57-centos7", "ime", "sifra");
+	$dbh= new PDO("mysql:dbname=sampledb;host=mysql:3306/", "userGPJ", "c0odgnr25dURIfBh");
 		$sql = 'SELECT username,password FROM login ORDER BY username';
     foreach ($dbh->query($sql) as $row) {
 		$pdf->Cell(0,10,'Korisnik broj '.$i.': '.$row['username'],0,1);
